@@ -9,7 +9,7 @@
 - Read MySQL binlog events (insert, update, delete)
 - Update Redis cache asynchronously
 - Auto-reconnect on MySQL/Redis failures
-- Lightweight and production-ready
+- Lightweight
 
 ---
 
