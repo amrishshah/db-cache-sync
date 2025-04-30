@@ -14,13 +14,14 @@ import (
 
 type Handler struct {
 	cache *cache.RedisClient
+	cfg   *config.Config
 }
 
 func (h *Handler) OnRow(e *canal.RowsEvent) error {
 	table := e.Table.Name
 	action := e.Action
 
-	if table != "users" {
+	if !h.cfg.TableSet[table] {
 		return nil
 	}
 
@@ -28,6 +29,8 @@ func (h *Handler) OnRow(e *canal.RowsEvent) error {
 		if action == canal.UpdateAction {
 			idx = idx/2*2 + 1 // updated row is second
 		}
+
+		log.Println(e.Table.GetPKColumn(0).Name)
 
 		id := fmt.Sprintf("%v", row[0]) // assume first column is 'id'
 
@@ -105,7 +108,8 @@ func StartBinlogReader(cfg config.Config, redisClient *cache.RedisClient) error 
 		return err
 	}
 
-	handler := &Handler{cache: redisClient}
+	handler := &Handler{cache: redisClient,
+		cfg: &cfg}
 
 	c.SetEventHandler(handler)
 
